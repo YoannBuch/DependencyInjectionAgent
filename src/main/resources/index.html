@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<header>
+	<style>
+g.type-TK>rect {
+	fill: #00ffd0;
+}
+
+text {
+	font-weight: 300;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+	font-size: 14px;
+}
+
+.node rect {
+	stroke: #999;
+	fill: #fff;
+	stroke-width: 1.5px;
+}
+
+.edgePath path {
+	stroke: #333;
+	stroke-width: 1.5px;
+}
+</style>
+</header>
+<body>
+
+	<svg id="svg-canvas" width=960 height=600></svg>
+
+
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script type="text/javascript"
+		src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js"></script>
+
+	<script type="text/javascript">
+		d3.json("http://localhost:9090/container.json", function(error,
+				dependencyGraph) {
+			console.log(dependencyGraph);
+
+			// Create the input graph
+			var g = new dagreD3.graphlib.Graph().setGraph({})
+					.setDefaultEdgeLabel(function() {
+						return {};
+					});
+
+			dependencyGraph.beans.forEach(function(bean) {
+				g.setNode(bean.id, {
+					label : bean.typeName,
+					class : "bean"
+				});
+			});
+
+			g.nodes().forEach(function(v) {
+				var node = g.node(v);
+				// Round the corners of the nodes
+				node.rx = node.ry = 5;
+			});
+
+			dependencyGraph.dependencies.forEach(function(dep) {
+				g.setEdge(dep.sourceBeanId, dep.destinationBeanId);
+			});
+
+			// Create the renderer
+			var render = new dagreD3.render();
+
+			// Set up an SVG group so that we can translate the final graph.
+			var svg = d3.select("svg"), svgGroup = svg.append("g");
+
+			// Run the renderer. This is what draws the final graph.
+			render(d3.select("svg g"), g);
+
+			// Center the graph
+			var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
+			svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+			svg.attr("height", g.graph().height + 40);
+		});
+	</script>
+
+</body>
+</html>
