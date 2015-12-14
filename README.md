@@ -2,6 +2,8 @@
 
 This java agent helps you visualize in your browser the content of the dependency injection container used by your application.
 
+It should support all the dependency injection libraries relying on the @Inject and @Autowired annotations: Spring, CDI, Guice, Dagger, etc.
+
 
 ## How to build the agent
 
