@@ -3,7 +3,10 @@ package diagent;
 import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
 
 import java.io.IOException;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.agent.builder.AgentBuilder.InitializationStrategy;
@@ -16,16 +19,17 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
 
 public class DIAgent {
-
-	private static final String AUTOWIRED_ANNOTATION = "org.springframework.beans.factory.annotation.Autowired";
-	private static final String INJECT_ANNOTATION = "javax.inject.Inject";
-
-	public static void premain(String args, Instrumentation instrumentation) throws IOException {
+	
+	public static void premain(String args, Instrumentation instrumentation) {
 
 		System.out.println("Hello World from Agent");
+		
+		startWebServer();
+		
+		transformClasses(instrumentation);
+	}
 
-		new DependencyGraphWebServer(9090).start();
-
+	private static void transformClasses(Instrumentation instrumentation) {
 		new AgentBuilder.Default().withListener(new AgentListener())
 				.withInitializationStrategy(InitializationStrategy.Premature.INSTANCE)
 
@@ -35,14 +39,24 @@ public class DIAgent {
 					public Builder<?> transform(Builder<?> builder, TypeDescription typeDescription) {
 
 						return builder
-								.invokable(isAnnotatedWith(ElementMatchers.named(
-										INJECT_ANNOTATION)).or(isAnnotatedWith(
-												ElementMatchers.named(AUTOWIRED_ANNOTATION))))
+								.invokable(isAnnotatedWith(ElementMatchers.named(INJECT_ANNOTATION))
+										.or(isAnnotatedWith(ElementMatchers.named(AUTOWIRED_ANNOTATION))))
 								.intercept(SuperMethodCall.INSTANCE
 										.andThen(MethodDelegation.to(InjectionInterceptor.class)));
 					}
 				}).installOn(instrumentation);
 	}
+
+	private static void startWebServer() {
+		try {
+			new DependencyGraphWebServer(9090).start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static final String AUTOWIRED_ANNOTATION = "org.springframework.beans.factory.annotation.Autowired";
+	private static final String INJECT_ANNOTATION = "javax.inject.Inject";
 }
 
 class AgentListener implements AgentBuilder.Listener {
@@ -53,8 +67,8 @@ class AgentListener implements AgentBuilder.Listener {
 
 	@Override
 	public void onError(String typeName, Throwable throwable) {
-//		System.err.println("Error for " + typeName);
-//		throwable.printStackTrace();
+		// System.err.println("Error for " + typeName);
+		// throwable.printStackTrace();
 	}
 
 	@Override
