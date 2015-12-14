@@ -11,21 +11,24 @@ public class DependencyGraphService {
 	private static ConcurrentHashMap<Object, List<Object>> dependencyMap = new ConcurrentHashMap<>();
 
 	public static synchronized void addDependency(Object bean, Object[] dependencies) {
-		
+
 		if (dependencies == null) {
 			return;
 		}
-		
+
 		System.out.println(bean + " depends on " + Arrays.toString(dependencies));
 
-		List<Object> previousValue = dependencyMap.putIfAbsent(bean, new ArrayList<Object>(Arrays.asList(dependencies)));
-		
-		if (previousValue != null ) {
+		List<Object> previousValue = dependencyMap.putIfAbsent(bean,
+				new ArrayList<Object>(Arrays.asList(dependencies)));
+
+		if (previousValue != null) {
 			previousValue.addAll(Arrays.asList(dependencies));
 		}
-		
+
 		for (Object dependency : dependencies) {
-			dependencyMap.putIfAbsent(dependency, new ArrayList<Object>());
+			if (dependency != null) {
+				dependencyMap.putIfAbsent(dependency, new ArrayList<Object>());
+			}
 		}
 	}
 
