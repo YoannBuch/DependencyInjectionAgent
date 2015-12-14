@@ -47,9 +47,11 @@ public class DependencyGraphService {
 
 			for (Object beanDependency : beanDependencies) {
 
-				String injectBeanId = Integer.toHexString(beanDependency.hashCode());
+				if (beanDependency != null) {
+					String injectBeanId = Integer.toHexString(beanDependency.hashCode());
 
-				dependencies.add(new Dependency(beanId, injectBeanId));
+					dependencies.add(new Dependency(beanId, injectBeanId));
+				}
 			}
 		}
 
