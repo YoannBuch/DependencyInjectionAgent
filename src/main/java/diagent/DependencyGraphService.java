@@ -16,7 +16,10 @@ public class DependencyGraphService {
 			return;
 		}
 
+		System.out.println();
+		System.out.println("===== Dependency Injection Agent ==========");
 		System.out.println(bean + " depends on " + Arrays.toString(dependencies));
+		System.out.println();
 
 		List<Object> previousValue = dependencyMap.putIfAbsent(bean,
 				new ArrayList<Object>(Arrays.asList(dependencies)));
