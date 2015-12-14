@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html>
-<header>
-	<style>
-g.type-TK>rect {
-	fill: #00ffd0;
-}
-
+<head>
+<style>
 text {
 	font-weight: 300;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
@@ -15,15 +11,15 @@ text {
 .node rect {
 	stroke: #999;
 	fill: #fff;
-	stroke-width: 1.5px;
+	stroke-width: 2px;
 }
 
 .edgePath path {
 	stroke: #333;
-	stroke-width: 1.5px;
+	stroke-width: 2px;
 }
 </style>
-</header>
+</head>
 <body>
 
 	<svg id="svg-canvas" width=960 height=600></svg>
@@ -46,7 +42,7 @@ text {
 
 			dependencyGraph.beans.forEach(function(bean) {
 				g.setNode(bean.id, {
-					label : bean.typeName,
+					label : bean.typeName + '@' + bean.id,
 					class : "bean"
 				});
 			});
