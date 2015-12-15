@@ -1,39 +1,37 @@
 package diagent;
 
-import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
-
 import java.io.IOException;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
-import java.security.ProtectionDomain;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.agent.builder.AgentBuilder.InitializationStrategy;
+import net.bytebuddy.agent.builder.AgentBuilder.RawMatcher;
 import net.bytebuddy.agent.builder.AgentBuilder.Transformer;
+import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.DynamicType.Builder;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
+import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
+import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class DIAgent {
-	
+
 	public static void premain(String args, Instrumentation instrumentation) {
 
 		System.out.println("Hello World from Agent");
-		
+
 		startWebServer();
-		
+
 		transformClasses(instrumentation);
 	}
 
 	private static void transformClasses(Instrumentation instrumentation) {
+		
 		new AgentBuilder.Default().withListener(new AgentListener())
-				.withInitializationStrategy(InitializationStrategy.Premature.INSTANCE)
-
-				.type(ElementMatchers.not(ElementMatchers.nameStartsWith("java"))).transform(new Transformer() {
+				.type(geTypeMatchers()).transform(new Transformer() {
 
 					@Override
 					public Builder<?> transform(Builder<?> builder, TypeDescription typeDescription) {
@@ -55,6 +53,12 @@ public class DIAgent {
 		}
 	}
 	
+	private static Junction<NamedElement> geTypeMatchers() {
+		
+		// TODO: try that instead: type(any(), not(isBootstrapClassLoader()))
+		return not(nameStartsWith("java").or(nameStartsWith("sun")).or(nameStartsWith("javax")).or(nameStartsWith("com.sun")));
+	}
+
 	private static final String AUTOWIRED_ANNOTATION = "org.springframework.beans.factory.annotation.Autowired";
 	private static final String INJECT_ANNOTATION = "javax.inject.Inject";
 }
@@ -67,8 +71,8 @@ class AgentListener implements AgentBuilder.Listener {
 
 	@Override
 	public void onError(String typeName, Throwable throwable) {
-		// System.err.println("Error for " + typeName);
-		// throwable.printStackTrace();
+//		System.err.println("Error for " + typeName);
+//		throwable.printStackTrace();
 	}
 
 	@Override
