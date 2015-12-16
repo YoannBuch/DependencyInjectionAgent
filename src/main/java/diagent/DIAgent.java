@@ -1,11 +1,14 @@
 package diagent;
 
+import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
+import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.not;
+
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
-import net.bytebuddy.agent.builder.AgentBuilder.InitializationStrategy;
-import net.bytebuddy.agent.builder.AgentBuilder.RawMatcher;
 import net.bytebuddy.agent.builder.AgentBuilder.Transformer;
 import net.bytebuddy.description.NamedElement;
 import net.bytebuddy.description.type.TypeDescription;
@@ -14,17 +17,15 @@ import net.bytebuddy.dynamic.DynamicType.Builder;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
-import net.bytebuddy.matcher.ElementMatchers;
-import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class DIAgent {
 
 	public static void premain(String args, Instrumentation instrumentation) {
 
 		System.out.println("Hello World from Agent");
-
+		
 		startWebServer();
-
+		
 		transformClasses(instrumentation);
 	}
 
@@ -37,11 +38,12 @@ public class DIAgent {
 					public Builder<?> transform(Builder<?> builder, TypeDescription typeDescription) {
 
 						return builder
-								.invokable(isAnnotatedWith(ElementMatchers.named(INJECT_ANNOTATION))
-										.or(isAnnotatedWith(ElementMatchers.named(AUTOWIRED_ANNOTATION))))
+								.invokable(isAnnotatedWith(named(INJECT_ANNOTATION))
+										.or(isAnnotatedWith(named(AUTOWIRED_ANNOTATION))))
 								.intercept(SuperMethodCall.INSTANCE
 										.andThen(MethodDelegation.to(InjectionInterceptor.class)));
 					}
+					
 				}).installOn(instrumentation);
 	}
 
