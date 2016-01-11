@@ -18,8 +18,6 @@ public class DependencyGraphWebServer extends NanoHTTPD {
 
 	public DependencyGraphWebServer(int port) {
 		super(port);
-		
-		System.out.println("Setting up web server on port " + port);
 	}
 
 	@Override

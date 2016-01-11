@@ -63,6 +63,14 @@ text {
 			// Set up an SVG group so that we can translate the final graph.
 			var svg = d3.select("svg"), svgGroup = svg.append("g");
 
+			svgGroup.call(d3.behavior.zoom().scaleExtent([ 1, 8 ]).on(
+					"zoom",
+					function() {
+						console.log('zooming!!')
+						svg.attr("transform", "translate(" + d3.event.translate
+								+ ")scale(" + d3.event.scale + ")");
+					}));
+
 			// Run the renderer. This is what draws the final graph.
 			render(d3.select("svg g"), g);
 

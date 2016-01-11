@@ -5,7 +5,9 @@ import net.bytebuddy.implementation.bind.annotation.This;
 
 public class InjectionInterceptor {
 	
-	public static void intercept(@This Object currentInstance, @AllArguments Object[] injectedInstances) {
+	public static void intercept(
+			@This Object currentInstance, 
+			@AllArguments Object[] injectedInstances) {
 		
 		DependencyGraphService.addDependency(currentInstance, injectedInstances);
 	}
