@@ -29,12 +29,12 @@ public class DependencyGraphWebServer extends NanoHTTPD {
 			
 		} else {
 			
-			return getResponseForIndexRequest();
+			return getResponseForFileRequest(session.getUri());
 		}	
 	}
 
-	private Response getResponseForIndexRequest() {
-		return newFixedLengthResponse(getIndexHtmlContent());
+	private Response getResponseForFileRequest(String uri) {
+		return newFixedLengthResponse(getFileContent(uri));
 	}
 
 	private Response getResponseForDependencyGraphRequest() {
@@ -52,14 +52,20 @@ public class DependencyGraphWebServer extends NanoHTTPD {
 		return session.getUri().endsWith(".json");
 	}
 
-	private String getIndexHtmlContent() {
+	private String getFileContent(String uri) {
 		try {
+			
 			InputStream is = getClass().getResourceAsStream("/index.html");
-			String indexHtml = IOUtils.toString(is, "UTF-8");
+			
+			if (!uri.equals("/")) {
+				is = getClass().getResourceAsStream(uri);
+			}
+			
+			String fileContent = IOUtils.toString(is, "UTF-8");
 
-			return indexHtml;
+			return fileContent;
 		} catch (IOException e) {
-			throw new RuntimeException("Could not generate content for index.html", e);
+			throw new RuntimeException("Could not generate content for " + uri, e);
 		}
 	}
 }
